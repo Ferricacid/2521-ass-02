@@ -9,37 +9,53 @@
 #include "PQ.h"
 
 // Structs.
-
 struct PQRep {
-
+	ItemPQ node;
+	struct PQRep *next;
 };
 
-
+// Functions.
 PQ newPQ() {
-	return NULL;
+	PQ new = malloc(sizeof(PQ));
+	assert(new != NULL);
+	new->node = NULL;
+	new->next = NULL;
+
+	return new;
 }
 
-int PQEmpty(PQ p) {
+int PQEmpty(PQ pq) {
+	assert(pq != NULL);
+
+	if (pq->node == NULL) {
+		return 1;
+	}
+	else {
 		return 0;
+	}
 }
 
 void addPQ(PQ pq, ItemPQ element) {
+	assert(pq != NULL);
 
+	// Empty PQ.
+	if (pq.node == NULL) {
+		pq.node = element;
+	}
 }
 
 ItemPQ dequeuePQ(PQ pq) {
-	ItemPQ throwAway = {0};
-	return throwAway;
+	return NULL;
 }
 
 void updatePQ(PQ pq, ItemPQ element) {
-
+	//
 }
 
 void  showPQ(PQ pq) {
-
+	//
 }
 
 void  freePQ(PQ pq) {
-
+	//
 }
