@@ -50,8 +50,8 @@ void addPQ(PQ pq, ItemPQ element) {
 		PQ curr = pq;
 		// Check if exists already.
 		while (curr != NULL) {
-			if (curr->node->key == element.key) {
-				curr->node->value = element.value;
+			if (curr->node.key == element.key) {
+				curr->node.value = element.value;
 				return;
 			}
 			curr = curr->next;
