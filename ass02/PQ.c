@@ -39,9 +39,9 @@ void addPQ(PQ pq, ItemPQ element) {
 	assert(pq != NULL);
 
 	// Empty PQ.
-	if (pq->isEmpty == 1) {
-		pq->node = element;
-	}
+	// if (pq->isEmpty == 1) {
+	// 	pq->node = element;
+	// }
 }
 
 ItemPQ dequeuePQ(PQ pq) {
