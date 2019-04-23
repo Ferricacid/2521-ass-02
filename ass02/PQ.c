@@ -10,7 +10,8 @@
 
 // Structs.
 struct PQRep {
-	ItemPQ *node;
+	int isEmpty;
+	ItemPQ node;
 	struct PQRep *next;
 };
 
@@ -18,7 +19,10 @@ struct PQRep {
 PQ newPQ() {
 	PQ new = malloc(sizeof(PQ));
 	assert(new != NULL);
-	new->node = NULL;
+
+	ItemPQ empty = {0};
+	new->isEmpty = 1;
+	new->node = empty;
 	new->next = NULL;
 
 	return new;
@@ -26,28 +30,19 @@ PQ newPQ() {
 
 int PQEmpty(PQ pq) {
 	assert(pq != NULL);
-
-	int isEmpty;
-
-	if (pq->node == NULL) {
-		isEmpty = 1;
-	}
-	else {
-		isEmpty = 0;
-	}
-
-	return isEmpty;
+	
+	return pq->isEmpty;
 }
 
 void addPQ(PQ pq, ItemPQ element) {
 	assert(pq != NULL);
 
+	ItemPQ new = {.key = element.key, .value = element.value};
+
 	// Empty PQ.
-	if (pq->node == NULL) {
-		pq->node = malloc(sizeof(pq->node))
-		assert(pq->node != NULL);
-		pq->node->key = element.key;
-		pq->node->value = element.value;
+	if (pq->isEmpty) {
+		pq->node = new;
+		pq->isEmpty = 0;
 		pq->next = NULL;
 	}
 	// At least one item.
@@ -68,9 +63,9 @@ void addPQ(PQ pq, ItemPQ element) {
 			curr = curr->next;
 		}
 		curr->next = newPQ();
-		curr->next->node = malloc(sizeof(pq->node));
-		curr->next->node->key = element.key;
-		curr->next->node->value = element.value;
+		curr->next->node = new;
+		curr->next->isEmpty = 0;
+		curr->next->next = NULL;
 	}
 }
 
