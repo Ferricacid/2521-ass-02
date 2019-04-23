@@ -18,7 +18,7 @@ struct PQRep {
 PQ newPQ() {
 	PQ new = malloc(sizeof(PQ));
 	assert(new != NULL);
-	new->node = NULL;
+	new.node = NULL;
 	new->next = NULL;
 
 	return new;
@@ -27,12 +27,16 @@ PQ newPQ() {
 int PQEmpty(PQ pq) {
 	assert(pq != NULL);
 
-	if (pq->node == NULL) {
-		return 1;
+	int isEmpty;
+
+	if (pq.node == NULL) {
+		isEmpty = 1;
 	}
 	else {
-		return 0;
+		isEmpty 0;
 	}
+
+	return isEmpty;
 }
 
 void addPQ(PQ pq, ItemPQ element) {
