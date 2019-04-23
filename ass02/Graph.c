@@ -2,18 +2,22 @@
 Graph interface for Assignment 02 (2521): Social Network Analysis.
 */
 
+// Library includes.
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 
+// File includes.
 
 #include "Graph.h"
 
+// Static prototypes.
 
 static int validVertex(Graph g, Vertex v);
 static AdjList createAdjList();
 
+// Structs.
 
 typedef struct GraphRep {
 	int noVertices; // number vertices.
@@ -21,6 +25,7 @@ typedef struct GraphRep {
 	int **edges; // matrix of weights between nodes. 0 == no edge.
 } GraphRep;
 
+// Functions.
 
 // Create a new Graph (from John Shepherd Lab 08)
 Graph newGraph(int noNodes) {
@@ -149,7 +154,6 @@ AdjList inIncident(Graph g, Vertex v) {
 	return in;
 }
 
-// May be incomplete.
 void  showGraph(Graph g) {
 	assert(g != NULL);
 
@@ -178,6 +182,7 @@ void  freeGraph(Graph g) {
 	free(g);
 }
 
+// Static functions.
 
 static int validVertex(Graph g, Vertex v) {
 	return ((g != NULL) && (v >= 0) && (v < g->noVertices));
