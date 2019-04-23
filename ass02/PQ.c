@@ -10,6 +10,7 @@
 
 // Structs.
 struct PQRep {
+	int isEmpty;
 	ItemPQ node;
 	struct PQRep *next;
 };
@@ -18,7 +19,8 @@ struct PQRep {
 PQ newPQ() {
 	PQ new = malloc(sizeof(PQ));
 	assert(new != NULL);
-	new->node = NULL;
+	new->isEmpty = 1;
+	new->node = {0};
 	new->next = NULL;
 
 	return new;
@@ -27,23 +29,14 @@ PQ newPQ() {
 int PQEmpty(PQ pq) {
 	assert(pq != NULL);
 
-	int isEmpty;
-
-	if (pq->node == NULL) {
-		isEmpty = 1;
-	}
-	else {
-		isEmpty 0;
-	}
-
-	return isEmpty;
+	return pq->isEmpty;
 }
 
 void addPQ(PQ pq, ItemPQ element) {
 	assert(pq != NULL);
 
 	// Empty PQ.
-	if (pq->node == NULL) {
+	if (pq->isEmpty == 1) {
 		pq->node = element;
 	}
 }
