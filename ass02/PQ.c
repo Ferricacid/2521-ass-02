@@ -1,9 +1,14 @@
 // PQ ADT interface for Ass2 (COMP2521)
-#include "PQ.h"
+
+// Library includes.
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
 
+// File includes.
+#include "PQ.h"
+
+// Structs.
 
 struct PQRep {
 
