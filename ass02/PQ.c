@@ -44,7 +44,7 @@ void addPQ(PQ pq, ItemPQ element) {
 
 	// Empty PQ.
 	if (pq->node == NULL) {
-		pq->node = malloc(sizeof(*ItemPQ))
+		pq->node = malloc(sizeof(pq->node))
 		assert(pq->node != NULL);
 		pq->node->key = element.key;
 		pq->node->value = element.value;
@@ -68,7 +68,7 @@ void addPQ(PQ pq, ItemPQ element) {
 			curr = curr->next;
 		}
 		curr->next = newPQ();
-		curr->next->node = malloc(sizeof(*ItemPQ));
+		curr->next->node = malloc(sizeof(pq->node));
 		curr->next->node->key = element.key;
 		curr->next->node->value = element.value;
 	}
