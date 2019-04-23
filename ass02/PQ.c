@@ -19,8 +19,11 @@ struct PQRep {
 PQ newPQ() {
 	PQ new = malloc(sizeof(PQ));
 	assert(new != NULL);
+
+	ItemPQ empty = {0};
+
 	new->isEmpty = 1;
-	new->node = {0};
+	new->node = empty;
 	new->next = NULL;
 
 	return new;
@@ -42,7 +45,7 @@ void addPQ(PQ pq, ItemPQ element) {
 }
 
 ItemPQ dequeuePQ(PQ pq) {
-	ItemPQ temp = {{0}};
+	ItemPQ temp = {0};
 	return temp;
 }
 
