@@ -42,7 +42,7 @@ void addPQ(PQ pq, ItemPQ element) {
 }
 
 ItemPQ dequeuePQ(PQ pq) {
-	ItemPQ temp = {0};
+	ItemPQ temp = {{0}};
 	return temp;
 }
 
