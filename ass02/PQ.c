@@ -70,8 +70,58 @@ void addPQ(PQ pq, ItemPQ element) {
 }
 
 ItemPQ dequeuePQ(PQ pq) {
-	ItemPQ temp = {0};
-	return temp;
+	assert(pq != NULL);
+
+	ItemPQ deQueued = {0};
+
+	// If PQ empty, return an zeroed ItemPQ.
+	if (pq->isEmpty) {
+		return deQueued;
+	}
+
+	// If PQ has only one element, return it.
+	if (pq->next == NULL) {
+		deQueued = {.key = pq->node.key, .value = pq->node.value};
+		pq->node.key = 0;
+		pq->node.value = 0;
+		pq->isEmpty = 1;
+		return deQueued;
+	}
+
+	// PQ has at least TWO elements.
+	// Find lowest the key of the ItemPQ to dequeue.
+	int lowestKey = pq->node.key;
+	int lowestValue = pq->node.value;
+	PQ curr = pq;
+	while (curr != NULL) {
+		if (curr->node.value < lowestValue) {
+			lowestKey = curr->node.key;
+			lowestValue = curr->node.value;
+		}
+		curr = curr->next;
+	}
+	// Locate the key, find prev and next.
+	PQ prev;
+	PQ deQueue;
+	PQ next;
+	curr = pq;
+	while (curr != NULL) {
+		if (curr->node.key == lowestKey) {
+			deQueue = curr;
+		}
+		curr = curr->next;
+	}
+	prev = deQueue;
+	next = deQueue;
+	curr = pq;
+	while (curr->next != NULL) {
+		if (curr->next->node.key == lowestKey) {
+			prev = curr;
+		}
+		curr = curr->next;
+	}
+
+	return deQueued;
 }
 
 void updatePQ(PQ pq, ItemPQ element) {
