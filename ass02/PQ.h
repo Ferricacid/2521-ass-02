@@ -25,7 +25,8 @@ void  addPQ(PQ, ItemPQ);
 */
 ItemPQ  dequeuePQ(PQ);
 
-/* Updates item with a given 'key' value, by updating that item's value to the given 'value'.
+/* Updates item with a given 'key' value, by updating that item's value
+   to the given 'value'.
    If item with 'key' does not exist in the queue, no action is taken
 */
 void  updatePQ(PQ, ItemPQ);
