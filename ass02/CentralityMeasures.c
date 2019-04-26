@@ -108,6 +108,24 @@ NodeValues betweennessCentrality(Graph g) {
 	BC.values = malloc(sizeof(int) * BC.noNodes);
 	assert(BC.values != NULL);
 
+	/*
+	for every vertex v {
+		for every pair of vertices not including v {
+			store num_shortest_paths
+			if num_shortest_paths equals to zero {
+				BC.values[v] = 0
+				continue;
+			}
+			for each shortest path {
+				if v is on the path and not on the ends {
+					add one to BC.values[v]
+				}
+			}
+			divide BC.values[v] by num_shortest_paths
+		}
+	}
+	*/
+
 	return BC;
 }
 
