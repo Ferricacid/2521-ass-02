@@ -67,28 +67,100 @@ void addPQ(PQ pq, ItemPQ element) {
 		curr->next->node.key = element.key;
 		curr->next->node.value = element.value;
 	}
-
-	curr = pq;
-	while (curr != NULL) {
-		printf("> %d-%d\n", curr->node.key, curr->node.value);
-	}
 }
 
 ItemPQ dequeuePQ(PQ pq) {
 	assert(pq != NULL);
 
-	ItemPQ temp = {0};
-	return temp;
+	ItemPQ pop = {0};
+
+	PQ curr = pq;
+	PQ temp = pq;
+
+	if (pq->node.key != EMPTY_NODE) {
+		// printf("> Checkpoint 1 ..\n");
+		if (pq->next == NULL) {
+			// printf("> Checkpoint 2-1 ..\n");
+			pop.key = pq->node.key;
+			pop.value = pq->node.value;
+			pq->node.key = EMPTY_NODE;
+			pq->node.value = 0;
+		}
+		else {
+			// printf("> Checkpoint 2-2 ..\n");
+			pop.key = pq->node.key;
+			pop.value = pq->node.value;
+			curr = pq;
+			while (curr != NULL) {
+				if (curr->node.value < pop.value) {
+					pop.key = curr->node.key;
+					pop.value = curr->node.value;
+				}
+				curr = curr->next;
+			}
+			
+			// printf("> Checkpoint 3 ..\n");
+			curr = pq;
+			while (curr->next != NULL) {
+				if (curr->next->node.key == pop.key) {
+					// FREE curr->next
+					temp = curr->next;
+					curr->next = curr->next->next;
+					free(temp);
+					break;
+				}
+				curr = curr->next;
+			}
+		}
+	}
+
+	return pop;
 }
 
 void updatePQ(PQ pq, ItemPQ element) {
-	//
+	assert(pq != NULL);
+
+	PQ curr = pq;
+
+	while (curr != NULL) {
+		if (curr->node.key == element.key) {
+			curr->node.value = element.value;
+			break;
+		}
+		curr = curr->next;
+	}
 }
 
-void  showPQ(PQ pq) {
-	//
+void showPQ(PQ pq) {
+	assert(pq != NULL);
+
+	PQ curr = pq;
+
+	while (curr != NULL) {
+		printf("> Key: %d | Value: %d", curr->node.key, curr->node.value);
+		if (curr->node.key == EMPTY_NODE) {
+			printf(" (EMPTY NODE)");
+		}
+		printf("\n");
+		curr = curr->next;
+	}
 }
 
-void  freePQ(PQ pq) {
-	//
+void freePQ(PQ pq) {
+	assert(pq != NULL);
+
+	if (pq->next == NULL) {
+		free(pq);
+		return;
+	}
+
+	PQ curr = pq;
+	PQ prev = pq;
+
+	while (curr->next != NULL) {
+		prev = curr;
+		curr = curr->next;
+		free(prev);
+	}
+	free(curr);
 }
