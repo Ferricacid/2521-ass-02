@@ -120,9 +120,9 @@ NodeValues betweennessCentralityNormalised(Graph g) {
 
 	BCN.noNodes = numVerticies(g);
 	BCN.values = malloc(sizeof(int) * BCN.noNodes);
-	assert(BN.values != NULL);
+	assert(BCN.values != NULL);
 
-	for (v = 0; v < BN.noNodes; v++) {
+	for (v = 0; v < BCN.noNodes; v++) {
 		BCN.values[v] = (1 / ((BCN.noNodes  - 1) * (BCN.noNodes - 2))) * BC.values[v];
 	}
 
