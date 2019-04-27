@@ -76,6 +76,7 @@ ItemPQ dequeuePQ(PQ pq) {
 
 	PQ curr = pq;
 	PQ temp = pq;
+	PQ prev = pq;
 
 	if (pq->node.key != EMPTY_NODE) {
 		// printf("> Checkpoint 1 ..\n");
@@ -98,7 +99,25 @@ ItemPQ dequeuePQ(PQ pq) {
 				}
 				curr = curr->next;
 			}
-			
+
+			//
+			if (pq->node.key == pop.key) {
+				curr = pq;
+				prev = pq;
+				while (curr->next != NULL) {
+					curr->node.key = curr->next->node.key;
+					curr->node.value = curr->next->node.value;
+					prev = curr;
+					curr = curr->next;
+				}
+				prev->next = NULL;
+				free(curr);
+				return pop;
+				// at least two items.
+				// move all item values down queue.
+			}
+			//
+
 			// printf("> Checkpoint 3 ..\n");
 			curr = pq;
 			while (curr->next != NULL) {
