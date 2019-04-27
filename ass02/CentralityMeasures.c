@@ -87,7 +87,7 @@ NodeValues closenessCentrality(Graph g) {
 	for (u = 0; u < CC.noNodes; u++) {
 		ShortestPaths paths = dijkstra(g, u);
 
-		cc_n = 0;
+		cc_n = 1;
 		for (v = 0; v < paths.noNodes; v++) {
 			if (paths.dist[v] > 0) {
 				cc_n++;
@@ -102,8 +102,6 @@ NodeValues closenessCentrality(Graph g) {
 				sum_d += paths.dist[v];
 			}
 		}
-
-		printf("> n=%d N=%d sum_d=%d\n", cc_n, cc_N, sum_d);
 
 		CC.values[u] = (((double)cc_n - 1) / ((double)cc_N - 1)) * (((double)cc_n - 1) / (double)sum_d);
 
@@ -165,7 +163,7 @@ void showNodeValues(NodeValues values) {
 	int v = 0;
 
 	for (v = 0; v < values.noNodes; v++) {
-		printf(">>>> %d: %f\n", v, values.values[v]);
+		printf("%d: %f\n", v, values.values[v]);
 	}
 }
 
