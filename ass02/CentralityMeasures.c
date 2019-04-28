@@ -175,7 +175,7 @@ NodeValues betweennessCentrality(Graph g) {
 								curr = dijPaths.pred[subView.key];
 								while (curr != NULL) {
 									add.key = curr->v;
-									add.value = dijPaths.dist[v];
+									add.value = dijPaths.dist[curr->v];
 									addPQ(subToDo, add);
 									curr = curr->next;
 									// printf(">\n");
@@ -198,10 +198,14 @@ NodeValues betweennessCentrality(Graph g) {
 
 					freePQ(toDo);
 
-					if (num_paths > 0) {
-						// printf("v_apperances = %d , num_paths = %d\n", v_appearances, num_paths);
+					if ((num_paths > 0) && (v_appearances > 0)) {
+						//printf("v_apperances = %d , num_paths = %d\n", v_appearances, num_paths);
 						BC.values[v] += (float) v_appearances / (float) num_paths;
 					}
+
+					// if (v == 11) {
+					// 	printf("%d->%d v_apperances = %d , num_paths = %d\n", s, t, v_appearances, num_paths);
+					// }
 				}
 			}
 			freeShortestPaths(dijPaths);
