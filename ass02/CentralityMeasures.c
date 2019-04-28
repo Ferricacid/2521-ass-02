@@ -136,15 +136,15 @@ NodeValues betweennessCentrality(Graph g) {
 	assert(BC.values != NULL);
 
 	for (v = 0; v < BC.noNodes; v++) {
-		printf("vertex %d\n", v);
+		// printf("vertex %d\n", v);
 		BC.values[v] = 0;
 
 		for(s = 0; s < BC.noNodes; s++) {
-			printf("src %d\n", s);
+			// printf("src %d\n", s);
 			ShortestPaths dijPaths = dijkstra(g, s);
 			for (t = 0; t < BC.noNodes; t++) {
 				if (((s != t) && (s != v) && (t != v)) && (dijPaths.dist[t] > 0)) {
-					printf("%d -> %d\n", s, t);
+					// printf("%d -> %d\n", s, t);
 					num_paths = 0;
 					v_appearances = 0;
 
@@ -165,11 +165,11 @@ NodeValues betweennessCentrality(Graph g) {
 							PQ subToDo = newPQ();
 							add.key = v;
 							add.value = dijPaths.dist[v];
-							printf("> view.key %d\n", view.key);
-							printf("->%d %d\n", add.key, add.value);
+							// printf("> view.key %d\n", view.key);
+							// printf("->%d %d\n", add.key, add.value);
 							addPQ(subToDo, add);
 							while (PQEmpty(subToDo) != 1) {
-								subView = dequeuePQ(toDo);
+								subView = dequeuePQ(subToDo);
 								if (subView.key == s) {
 									v_appearances++;
 								}
@@ -179,7 +179,7 @@ NodeValues betweennessCentrality(Graph g) {
 									add.value = dijPaths.dist[v];
 									addPQ(subToDo, add);
 									curr = curr->next;
-									printf(">\n");
+									// printf(">\n");
 								}
 							}
 							freePQ(subToDo);
@@ -197,14 +197,14 @@ NodeValues betweennessCentrality(Graph g) {
 					freePQ(toDo);
 
 					if (num_paths > 0) {
-						printf("v_apperances = %d , num_paths = %d\n", v_appearances, num_paths);
+						// printf("v_apperances = %d , num_paths = %d\n", v_appearances, num_paths);
 						BC.values[v] += (float) v_appearances / (float) num_paths;
 					}
 				}
 			}
 			freeShortestPaths(dijPaths);
 		}
-		printf("\n");
+		// printf("\n");
 	}
 
 	return BC;
@@ -222,7 +222,7 @@ NodeValues betweennessCentralityNormalised(Graph g) {
 	assert(BCN.values != NULL);
 	
 	for (v = 0; v < BCN.noNodes; v++) {
-		BCN.values[v] = (1 / ((BCN.noNodes  - 1) * (BCN.noNodes - 2))) * BC.values[v];
+		BCN.values[v] = (1 / (((float) BCN.noNodes  - 1) * ((float) BCN.noNodes - 2))) * (float) BC.values[v];
 	}
 	
 	return BCN;
@@ -239,4 +239,3 @@ void showNodeValues(NodeValues values) {
 void freeNodeValues(NodeValues values) {
 	free(values.values);
 }
-
