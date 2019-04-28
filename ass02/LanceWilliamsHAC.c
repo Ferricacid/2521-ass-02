@@ -17,7 +17,34 @@
    The function returns 'Dendrogram' structure (binary tree) with the required information.
  * 
  */
+
+#define INFINITE 99999
+
 Dendrogram LanceWilliamsHAC(Graph g, int method) {
+    int num_nodes = numVerticies(g);
+    float distances[num_nodes][num_nodes] = {{INFINITE}};
+
+    for (int i = 0; i < num_nodes; i += 1) {
+        distances[i][i] = 0;
+        AdjList edges = outIncident(g, i);
+        while (edges != NULL) {
+            int distance = 1/edges->weight;
+            if distance < distances[i][edges->w] {
+                distances[i][edges->w] = 1/edges->weight;
+            }
+            edge = edge->next;
+        }
+        AdjList edges = inIncident(g, i);
+        while (edges != NULL) {
+            int distance = 1/edges->weight;
+            if distance < distances[i][edges->w] {
+                distances[i][edges->w] = 1/edges->weight;
+            }
+            edge = edge->next;
+        }
+        
+    }
+
 
     return NULL;
 }
