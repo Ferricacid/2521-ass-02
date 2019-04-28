@@ -136,15 +136,15 @@ NodeValues betweennessCentrality(Graph g) {
 	assert(BC.values != NULL);
 
 	for (v = 0; v < BC.noNodes; v++) {
-		// printf("vertex %d\n", v);
+		// printf(">>>> Betweenness for %d\n", v);
 		BC.values[v] = 0;
 
 		for(s = 0; s < BC.noNodes; s++) {
-			// printf("src %d\n", s);
+			// printf(" >>> Finding paths from %d\n", s);
 			ShortestPaths dijPaths = dijkstra(g, s);
 			for (t = 0; t < BC.noNodes; t++) {
 				if (((s != t) && (s != v) && (t != v)) && (dijPaths.dist[t] > 0)) {
-					// printf("%d -> %d\n", s, t);
+					// printf("  >> Finding shortest paths from %d to %d\n", s, t);
 					num_paths = 0;
 					v_appearances = 0;
 
@@ -158,6 +158,7 @@ NodeValues betweennessCentrality(Graph g) {
 
 					while (PQEmpty(toDo) != 1) {
 						view = dequeuePQ(toDo);
+						// printf("> view.key %d view.value %d\n", view.key, view.value);
 						if (view.key == s) {
 							num_paths++;
 						}
@@ -165,8 +166,6 @@ NodeValues betweennessCentrality(Graph g) {
 							PQ subToDo = newPQ();
 							add.key = v;
 							add.value = dijPaths.dist[v];
-							// printf("> view.key %d\n", view.key);
-							// printf("->%d %d\n", add.key, add.value);
 							addPQ(subToDo, add);
 							while (PQEmpty(subToDo) != 1) {
 								subView = dequeuePQ(subToDo);
@@ -188,11 +187,14 @@ NodeValues betweennessCentrality(Graph g) {
 						curr = dijPaths.pred[view.key];
 						while (curr != NULL) {
 							add.key = curr->v;
-							add.value = dijPaths.dist[v];
+							add.value = dijPaths.dist[curr->v];
 							addPQ(toDo, add);
+							// printf("added %d %d to PQ \n", add.key, add.value);
 							curr = curr->next;
 						}
 					}
+
+					// printf("   > For %d to %d, %d num_paths and %d v_appearances\n", s, t, num_paths, v_appearances);
 
 					freePQ(toDo);
 
@@ -204,7 +206,7 @@ NodeValues betweennessCentrality(Graph g) {
 			}
 			freeShortestPaths(dijPaths);
 		}
-		// printf("\n");
+		// printf("%d betweenness %lf\n\n", v, BC.values[v]);
 	}
 
 	return BC;
