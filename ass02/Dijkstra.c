@@ -54,11 +54,9 @@ ShortestPaths dijkstra(Graph g, Vertex v) {
     ShortestPaths *paths = malloc(sizeof(ShortestPaths));
     paths->noNodes = numVerticies(g);
     paths->src = v;
-    int *dist = NULL;
-    dist = malloc(sizeof(int) * numVerticies(g));
+    int *dist = dist = malloc(sizeof(int) * numVerticies(g));
 
-    PredNode **pred = NULL;
-    pred = malloc(sizeof(PredNode) * numVerticies(g));
+    PredNode **pred = malloc(sizeof(PredNode) * numVerticies(g));
 
     for (int i = 0; i < numVerticies(g); i += 1) {
         dist[i] = INFINITE;
