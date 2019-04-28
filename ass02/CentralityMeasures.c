@@ -14,7 +14,7 @@ NodeValues outDegreeCentrality(Graph g) {
 	AdjList out = {0};
 
 	ODC.noNodes = numVerticies(g);
-	ODC.values = malloc(sizeof(int) * ODC.noNodes);
+	ODC.values = malloc(sizeof(double) * ODC.noNodes);
 	assert(ODC.values != NULL);
 
 	for (v = 0; v < ODC.noNodes; v++) {
@@ -36,7 +36,7 @@ NodeValues inDegreeCentrality(Graph g) {
 	AdjList in = {0};
 
 	IDC.noNodes = numVerticies(g);
-	IDC.values = malloc(sizeof(int) * IDC.noNodes);
+	IDC.values = malloc(sizeof(double) * IDC.noNodes);
 	assert(IDC.values != NULL);
 
 	for (v = 0; v < IDC.noNodes; v++) {
@@ -55,11 +55,11 @@ NodeValues degreeCentrality(Graph g) {
 
 	int v = 0;
 	NodeValues ODC = outDegreeCentrality(g);
-	NodeValues IDC = outDegreeCentrality(g);
+	NodeValues IDC = inDegreeCentrality(g);
 	NodeValues DC = {0};
 	
 	DC.noNodes = numVerticies(g);
-	DC.values = malloc(sizeof(int) * DC.noNodes);
+	DC.values = malloc(sizeof(double) * DC.noNodes);
 	assert(DC.values != NULL);
 
 	for (v = 0; v < DC.noNodes; v++) {
@@ -72,27 +72,44 @@ NodeValues degreeCentrality(Graph g) {
 NodeValues closenessCentrality(Graph g) {
 	assert(g != NULL);
 
+	int u = 0;
 	int v = 0;
-	int sum_shortest = 0;
-	int v_other = 0;
+	int cc_n = 0;
+	int cc_N = 0;
+	int sum_d = 0;
+
 	NodeValues CC = {0};
 	
 	CC.noNodes = numVerticies(g);
-	CC.values = malloc(sizeof(int) * CC.noNodes);
+	CC.values = malloc(sizeof(double) * CC.noNodes);
 	assert(CC.values != NULL);
 
-	for (v = 0; v < CC.noNodes; v++) {
-		ShortestPaths paths = dijkstra(g, v);
-		sum_shortest = 0;
-		for (v_other = 0; v < paths.noNodes; v_other++) {
-			sum_shortest += paths.dist[v_other];
+	for (u = 0; u < CC.noNodes; u++) {
+		ShortestPaths paths = dijkstra(g, u);
+
+		cc_n = 1;
+		for (v = 0; v < paths.noNodes; v++) {
+			if (paths.dist[v] > 0) {
+				cc_n++;
+			}
 		}
-		if (sum_shortest != 0) {
-			CC.values[v] = ((paths.noNodes - 1) / (CC.noNodes)) * ((paths.noNodes - 1) / sum_shortest);
+
+		cc_N = paths.noNodes;
+
+		sum_d = 0;
+		for (v = 0; v < paths.noNodes; v++) {
+			if (paths.dist[v] > 0) {
+				sum_d += paths.dist[v];
+			}
+		}
+
+		if ((sum_d == 0) || ((cc_N - 1) == 0)) {
+			CC.values[u] = 0;
 		}
 		else {
-			CC.values[v] = 0;
+			CC.values[u] = (((double)cc_n - 1) / ((double)cc_N - 1)) * (((double)cc_n - 1) / (double)sum_d);
 		}
+
 		freeShortestPaths(paths);
 	}
 	
@@ -102,11 +119,99 @@ NodeValues closenessCentrality(Graph g) {
 NodeValues betweennessCentrality(Graph g) {
 	assert(g != NULL);
 
-	NodeValues BC = {0};
+	int v = 0;
+	int s = 0;
+	int t = 0;
+	int num_paths = 0;
+	int v_appearances = 0;
+	ItemPQ add = {0};
+	ItemPQ view = {0};
+	PredNode *curr = NULL;
 
+	ItemPQ subView = {0};
+
+	NodeValues BC = {0};
 	BC.noNodes = numVerticies(g);
-	BC.values = malloc(sizeof(int) * BC.noNodes);
+	BC.values = malloc(sizeof(double) * BC.noNodes);
 	assert(BC.values != NULL);
+
+	for (v = 0; v < BC.noNodes; v++) {
+		// printf(">>>> Betweenness for %d\n", v);
+		BC.values[v] = 0;
+
+		for(s = 0; s < BC.noNodes; s++) {
+			// printf(" >>> Finding paths from %d\n", s);
+			ShortestPaths dijPaths = dijkstra(g, s);
+			for (t = 0; t < BC.noNodes; t++) {
+				if (((s != t) && (s != v) && (t != v)) && (dijPaths.dist[t] > 0)) {
+					// printf("  >> Finding shortest paths from %d to %d\n", s, t);
+					num_paths = 0;
+					v_appearances = 0;
+
+					PQ toDo = newPQ();
+					add.key = t;
+					add.value = dijPaths.dist[t];
+					addPQ(toDo, add);
+
+					// printf("now:\n");
+					// showPQ(toDo);
+
+					while (PQEmpty(toDo) != 1) {
+						view = dequeuePQ(toDo);
+						// printf("> view.key %d view.value %d\n", view.key, view.value);
+						if (view.key == s) {
+							num_paths++;
+						}
+						else if (view.key == v) {
+							PQ subToDo = newPQ();
+							add.key = v;
+							add.value = dijPaths.dist[v];
+							addPQ(subToDo, add);
+							while (PQEmpty(subToDo) != 1) {
+								subView = dequeuePQ(subToDo);
+								if (subView.key == s) {
+									v_appearances++;
+								}
+								curr = dijPaths.pred[subView.key];
+								while (curr != NULL) {
+									add.key = curr->v;
+									add.value = dijPaths.dist[curr->v];
+									addPQ(subToDo, add);
+									curr = curr->next;
+									// printf(">\n");
+								}
+							}
+							freePQ(subToDo);
+						}
+						// else if view.key == v, find num_paths from v and add to v_apperances
+						curr = dijPaths.pred[view.key];
+						while (curr != NULL) {
+							add.key = curr->v;
+							add.value = dijPaths.dist[curr->v];
+							addPQ(toDo, add);
+							// printf("added %d %d to PQ \n", add.key, add.value);
+							curr = curr->next;
+						}
+					}
+
+					// printf("   > For %d to %d, %d num_paths and %d v_appearances\n", s, t, num_paths, v_appearances);
+
+					freePQ(toDo);
+
+					if ((num_paths > 0) && (v_appearances > 0)) {
+						//printf("v_apperances = %d , num_paths = %d\n", v_appearances, num_paths);
+						BC.values[v] += (float) v_appearances / (float) num_paths;
+					}
+
+					// if (v == 11) {
+					// 	printf("%d->%d v_apperances = %d , num_paths = %d\n", s, t, v_appearances, num_paths);
+					// }
+				}
+			}
+			freeShortestPaths(dijPaths);
+		}
+		// printf("%d betweenness %lf\n\n", v, BC.values[v]);
+	}
 
 	return BC;
 }
@@ -119,13 +224,13 @@ NodeValues betweennessCentralityNormalised(Graph g) {
 	NodeValues BC = betweennessCentrality(g);
 
 	BCN.noNodes = numVerticies(g);
-	BCN.values = malloc(sizeof(int) * BCN.noNodes);
+	BCN.values = malloc(sizeof(double) * BCN.noNodes);
 	assert(BCN.values != NULL);
-
+	
 	for (v = 0; v < BCN.noNodes; v++) {
-		BCN.values[v] = (1 / ((BCN.noNodes  - 1) * (BCN.noNodes - 2))) * BC.values[v];
+		BCN.values[v] = (1 / (((float) BCN.noNodes  - 1) * ((float) BCN.noNodes - 2))) * (float) BC.values[v];
 	}
-
+	
 	return BCN;
 }
 
