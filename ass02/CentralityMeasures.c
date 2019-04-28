@@ -119,71 +119,92 @@ NodeValues closenessCentrality(Graph g) {
 NodeValues betweennessCentrality(Graph g) {
 	assert(g != NULL);
 
-	NodeValues BC = {0};
 	int v = 0;
 	int s = 0;
 	int t = 0;
-	int i = 0;
 	int num_paths = 0;
-	int num_instances = 0;
+	int v_appearances = 0;
 	ItemPQ add = {0};
+	ItemPQ view = {0};
+	PredNode *curr = NULL;
 
-	int *multiply = NULL;
-	multiply = malloc(sizeof(int) * numVerticies(g));
-	for (i = 0; i < numVerticies(g); i++) {
-		multiply[i] = 0;
-	}
-	
+	ItemPQ subView = {0};
+
+	NodeValues BC = {0};
 	BC.noNodes = numVerticies(g);
 	BC.values = malloc(sizeof(double) * BC.noNodes);
 	assert(BC.values != NULL);
 
 	for (v = 0; v < BC.noNodes; v++) {
+		printf("vertex %d\n", v);
 		BC.values[v] = 0;
-		for (s = 0; s < BC.noNodes; s++) {
+
+		for(s = 0; s < BC.noNodes; s++) {
+			printf("src %d\n", s);
+			ShortestPaths dijPaths = dijkstra(g, s);
 			for (t = 0; t < BC.noNodes; t++) {
-				if ((s == t) || (s == v) || (t == v)) {
-					continue;
-				}
-				num_paths = 0;
-				num_instances = 0;
-				//
-				PQ view = newPQ();
-				add.key = t;
-				add.value = 1;
-				addPQ(view, add);
-				for (i = 0; i < numVerticies(g); i++) {
-					multiply[i] = 0;
-				}
-				multiply[t] = 1;
+				if (((s != t) && (s != v) && (t != v)) && (dijPaths.dist[t] > 0)) {
+					printf("%d -> %d\n", s, t);
+					num_paths = 0;
+					v_appearances = 0;
 
-				while (PQEmpty(view) != 1) {
-					add = dequeuePQ(view);
-					ShortestPaths paths = dijkstra(g, add.key);
-					PredNode *p_node = paths.pred[t];
-					while (p_node != NULL) {
-						if (p_node->v == v) {
-							num_instances++;
+					PQ toDo = newPQ();
+					add.key = t;
+					add.value = dijPaths.dist[t];
+					addPQ(toDo, add);
+
+					// printf("now:\n");
+					// showPQ(toDo);
+
+					while (PQEmpty(toDo) != 1) {
+						view = dequeuePQ(toDo);
+						if (view.key == s) {
+							num_paths++;
 						}
-						if (p_node->v == s) {
-							num_paths += multiply[paths.src];
+						else if (view.key == v) {
+							PQ subToDo = newPQ();
+							add.key = v;
+							add.value = dijPaths.dist[v];
+							printf("> view.key %d\n", view.key);
+							printf("->%d %d\n", add.key, add.value);
+							addPQ(subToDo, add);
+							while (PQEmpty(subToDo) != 1) {
+								subView = dequeuePQ(toDo);
+								if (subView.key == s) {
+									v_appearances++;
+								}
+								curr = dijPaths.pred[subView.key];
+								while (curr != NULL) {
+									add.key = curr->v;
+									add.value = dijPaths.dist[v];
+									addPQ(subToDo, add);
+									curr = curr->next;
+									printf(">\n");
+								}
+							}
+							freePQ(subToDo);
 						}
-						else {
-							multiply[p_node->v]++;
-							add.key = p_node->v;
-							add.value = 1;
-							addPQ(view, add);
+						// else if view.key == v, find num_paths from v and add to v_apperances
+						curr = dijPaths.pred[view.key];
+						while (curr != NULL) {
+							add.key = curr->v;
+							add.value = dijPaths.dist[v];
+							addPQ(toDo, add);
+							curr = curr->next;
 						}
-						p_node = p_node->next;
 					}
-					freeShortestPaths(paths);
-				}
 
-				freePQ(view);
-				
-				BC.values[v] += (float)num_paths / (float)num_instances;
+					freePQ(toDo);
+
+					if (num_paths > 0) {
+						printf("v_apperances = %d , num_paths = %d\n", v_appearances, num_paths);
+						BC.values[v] += (float) v_appearances / (float) num_paths;
+					}
+				}
 			}
+			freeShortestPaths(dijPaths);
 		}
+		printf("\n");
 	}
 
 	return BC;
@@ -218,3 +239,4 @@ void showNodeValues(NodeValues values) {
 void freeNodeValues(NodeValues values) {
 	free(values.values);
 }
+
