@@ -103,7 +103,12 @@ NodeValues closenessCentrality(Graph g) {
 			}
 		}
 
-		CC.values[u] = (((double)cc_n - 1) / ((double)cc_N - 1)) * (((double)cc_n - 1) / (double)sum_d);
+		if ((sum_d == 0) || ((cc_N - 1) == 0)) {
+			CC.values[u] = 0;
+		}
+		else {
+			CC.values[u] = (((double)cc_n - 1) / ((double)cc_N - 1)) * (((double)cc_n - 1) / (double)sum_d);
+		}
 
 		freeShortestPaths(paths);
 	}
@@ -115,28 +120,71 @@ NodeValues betweennessCentrality(Graph g) {
 	assert(g != NULL);
 
 	NodeValues BC = {0};
+	int v = 0;
+	int s = 0;
+	int t = 0;
+	int i = 0;
+	int num_paths = 0;
+	int num_instances = 0;
+	ItemPQ add = {0};
 
+	int *multiply = NULL;
+	multiply = malloc(sizeof(int) * numVerticies(g));
+	for (i = 0; i < numVerticies(g); i++) {
+		multiply[i] = 0;
+	}
+	
 	BC.noNodes = numVerticies(g);
 	BC.values = malloc(sizeof(double) * BC.noNodes);
 	assert(BC.values != NULL);
 
-	/*
-	for every vertex v {
-		for every pair of vertices not including v {
-			store num_shortest_paths
-			if num_shortest_paths equals to zero {
-				BC.values[v] = 0
-				continue;
-			}
-			for each shortest path {
-				if v is on the path and not on the ends {
-					add one to BC.values[v]
+	for (v = 0; v < BC.noNodes; v++) {
+		BC.values[v] = 0;
+		for (s = 0; s < BC.noNodes; s++) {
+			for (t = 0; t < BC.noNodes; t++) {
+				if ((s == t) || (s == v) || (t == v)) {
+					continue;
 				}
+				num_paths = 0;
+				num_instances = 0;
+				//
+				PQ view = newPQ();
+				add.key = t;
+				add.value = 1;
+				addPQ(view, add);
+				for (i = 0; i < numVerticies(g); i++) {
+					multiply[i] = 0;
+				}
+				multiply[t] = 1;
+
+				while (PQEmpty(view) != 1) {
+					add = dequeuePQ(view);
+					ShortestPaths paths = dijkstra(g, add.key);
+					PredNode *p_node = paths.pred[t];
+					while (p_node != NULL) {
+						if (p_node->v == v) {
+							num_instances++;
+						}
+						if (p_node->v == s) {
+							num_paths += multiply[paths.src];
+						}
+						else {
+							multiply[p_node->v]++;
+							add.key = p_node->v;
+							add.value = 1;
+							addPQ(view, add);
+						}
+						p_node = p_node->next;
+					}
+					freeShortestPaths(paths);
+				}
+
+				freePQ(view);
+				
+				BC.values[v] += (float)num_paths / (float)num_instances;
 			}
-			divide BC.values[v] by num_shortest_paths
 		}
 	}
-	*/
 
 	return BC;
 }
@@ -144,18 +192,18 @@ NodeValues betweennessCentrality(Graph g) {
 NodeValues betweennessCentralityNormalised(Graph g) {
 	assert(g != NULL);
 
-	//int v = 0;
+	int v = 0;
 	NodeValues BCN = {0};
-	//NodeValues BC = betweennessCentrality(g);
+	NodeValues BC = betweennessCentrality(g);
 
 	BCN.noNodes = numVerticies(g);
 	BCN.values = malloc(sizeof(double) * BCN.noNodes);
 	assert(BCN.values != NULL);
-	/*
+	
 	for (v = 0; v < BCN.noNodes; v++) {
 		BCN.values[v] = (1 / ((BCN.noNodes  - 1) * (BCN.noNodes - 2))) * BC.values[v];
 	}
-	*/
+	
 	return BCN;
 }
 
