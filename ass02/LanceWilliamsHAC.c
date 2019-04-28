@@ -19,7 +19,7 @@
  * 
  */
 
-#define INFINITE 9999
+#define INFINITE 99999
 
 // Merge two dendrograms
 static DNode *merge(DNode *a, DNode *b) {
@@ -30,14 +30,12 @@ static DNode *merge(DNode *a, DNode *b) {
     return(new);
 }  
 
-
 Dendrogram LanceWilliamsHAC(Graph g, int method) {
-    // Check if method = 1 or 2?
     int num_nodes = numVerticies(g);
     float distances[num_nodes][num_nodes];
     DNode **dendrograms = malloc(sizeof(DNode) * num_nodes);
     
-    // Set distances = ininte
+    // Set distances = infinte
     for (int i = 0; i<num_nodes; i++) {
         for (int j = 0; j<num_nodes; j++) {
             distances[i][j] = INFINITE;
@@ -77,22 +75,13 @@ Dendrogram LanceWilliamsHAC(Graph g, int method) {
     // n-1 merges
     int n = num_nodes -1;
     while (n > 0) {
-        
-        /*
-        for (int i = 0; i<num_nodes; i++) {
-            for (int j = 0; j<num_nodes; j++) {
-                printf("%f ", distances[i][j]);
-            }
-            printf("\n");
-        }
-        */
-        
         // find lowest
+        // distances[0][0] always exists
         float lowest = distances[0][0]; // Equal to INIFINITE
         lowest += 1;
         int v1 = 0;
         int v2 = 0;
-        // distances[0][0] always exists
+        
 
         // Loops through the matrix skipping values that don't have
         // a cluster attached to them, i.e has been merged
@@ -134,42 +123,28 @@ Dendrogram LanceWilliamsHAC(Graph g, int method) {
                         distances[v1][i] = distances[v2][i];
                         distances[i][v1] = distances[v2][i];
                     } 
-                    /*
-                    if (distances[v1][i] < distances[v2][i]) {
-                        distances[v2][i] = distances[v1][i];
-                        distances[i][v2] = distances[v1][i];
-                    }
-                    */
                 // Complete Linkcage
                 } else if (method == 2) {
                     if (distances[v2][i] > distances[v1][i]) {
                         distances[v1][i] = distances[v2][i];
                         distances[i][v1] = distances[v2][i];
-                    } 
-                    /*
-                    if (distances[v1][i] < distances[v2][i]) {
-                        distances[v2][i] = distances[v1][i];
-                        distances[i][v2] = distances[v1][i];
                     }
-                    */
                 } 
-                
             }
-            
-            
         }
         n -=1;
     }
 
-    // Returns 
-    // Always exists because clusters are merged into the lower
+    // Returns the dendrogram
+    // Always exists because clusters are merged into the lower value
     return dendrograms[0];
 }
 
 
 void freeDendrogram(Dendrogram d) {
-
-	return;
+    if (d == NULL) return;
+    freeDendrogram(d->left);
+    freeDendrogram(d->right);
 }
 
 
