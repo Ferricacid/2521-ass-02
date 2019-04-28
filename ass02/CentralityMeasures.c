@@ -136,33 +136,29 @@ NodeValues betweennessCentrality(Graph g) {
 	assert(BC.values != NULL);
 
 	for (v = 0; v < BC.noNodes; v++) {
-		// printf(">>>> Betweenness for %d\n", v);
-		BC.values[v] = 0;
+		BC.values[v] = 0; // betwenness for v
 
 		for(s = 0; s < BC.noNodes; s++) {
-			// printf(" >>> Finding paths from %d\n", s);
 			ShortestPaths dijPaths = dijkstra(g, s);
 			for (t = 0; t < BC.noNodes; t++) {
-				if (((s != t) && (s != v) && (t != v)) && (dijPaths.dist[t] > 0)) {
-					// printf("  >> Finding shortest paths from %d to %d\n", s, t);
+				// For every vertex pair, check every possible shortest path from s to t.
+				// betwenness += (number of times v appears in a shortest path BETWEEN s and t) divided by (number of possible paths between s and t)
+				if (((s != t) && (s != v) && (t != v)) && (dijPaths.dist[t] > 0)) { // only check if v could be BETWEEN s and t, and if s and t are connected at all
 					num_paths = 0;
 					v_appearances = 0;
 
 					PQ toDo = newPQ();
 					add.key = t;
 					add.value = dijPaths.dist[t];
-					addPQ(toDo, add);
+					addPQ(toDo, add); // start from t
 
-					// printf("now:\n");
-					// showPQ(toDo);
-
+					// continually dequeue and add the predNodes to the queue, with the shortest distance from s to the dequeued key as the value.
 					while (PQEmpty(toDo) != 1) {
 						view = dequeuePQ(toDo);
-						// printf("> view.key %d view.value %d\n", view.key, view.value);
-						if (view.key == s) {
+						if (view.key == s) { // if dequeued is s, one path has been completed.
 							num_paths++;
 						}
-						else if (view.key == v) {
+						else if (view.key == v) { // if dequeued is v, find number of shortest paths from s to v, and add to v_appearances.
 							PQ subToDo = newPQ();
 							add.key = v;
 							add.value = dijPaths.dist[v];
@@ -183,34 +179,24 @@ NodeValues betweennessCentrality(Graph g) {
 							}
 							freePQ(subToDo);
 						}
-						// else if view.key == v, find num_paths from v and add to v_apperances
 						curr = dijPaths.pred[view.key];
 						while (curr != NULL) {
 							add.key = curr->v;
 							add.value = dijPaths.dist[curr->v];
 							addPQ(toDo, add);
-							// printf("added %d %d to PQ \n", add.key, add.value);
 							curr = curr->next;
 						}
 					}
-
-					// printf("   > For %d to %d, %d num_paths and %d v_appearances\n", s, t, num_paths, v_appearances);
-
 					freePQ(toDo);
 
-					if ((num_paths > 0) && (v_appearances > 0)) {
-						//printf("v_apperances = %d , num_paths = %d\n", v_appearances, num_paths);
+					if ((num_paths > 0) && (v_appearances > 0)) { // add betweenness value for this s-t pair.
 						BC.values[v] += (float) v_appearances / (float) num_paths;
 					}
 
-					// if (v == 11) {
-					// 	printf("%d->%d v_apperances = %d , num_paths = %d\n", s, t, v_appearances, num_paths);
-					// }
 				}
 			}
 			freeShortestPaths(dijPaths);
 		}
-		// printf("%d betweenness %lf\n\n", v, BC.values[v]);
 	}
 
 	return BC;
