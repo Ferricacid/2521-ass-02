@@ -21,8 +21,9 @@ struct PQRep {
 PQ newPQ() {
 	PQ new = malloc(sizeof(PQ));
 	assert(new != NULL);
-	new->node.key = EMPTY_NODE;
-	new->node.value = 0;
+	new->node.key = 0;
+	new->node.value = EMPTY_NODE;
+	// define a pq as empty if its head node has a value of EMPTY_NODE
 	new->next = NULL;
 	return new;
 }
@@ -32,7 +33,7 @@ int PQEmpty(PQ pq) {
 
 	int isEmpty = 0;
 
-	if (pq->node.key == EMPTY_NODE) {
+	if (pq->node.value == EMPTY_NODE) {
 		isEmpty = 1;
 	}
 
@@ -41,15 +42,16 @@ int PQEmpty(PQ pq) {
 
 void addPQ(PQ pq, ItemPQ element) {
 	assert(pq != NULL);
-	assert(element.key != -1); // FUNCTION ASSUMES A KEY CANNOT BE NEGATIVE (SPECIFICALLY -1).
 
 	PQ curr = pq;
 
-	if (pq->node.key == EMPTY_NODE) {
+	if (pq->node.value == EMPTY_NODE) {
+		// pq is empty, replace its key-value.
 		pq->node.key = element.key;
 		pq->node.value = element.value;
 	}
 	else {
+		// if element key is already in pq, update its value.
 		curr = pq;
 		while (curr != NULL) {
 			if (curr->node.key == element.key) {
@@ -59,6 +61,8 @@ void addPQ(PQ pq, ItemPQ element) {
 			curr = curr->next;
 		}
 
+		// otherwise normal case, go to end of pq and add the
+		// key-value.
 		curr = pq;
 		while (curr->next != NULL) {
 			curr = curr->next;
@@ -78,18 +82,25 @@ ItemPQ dequeuePQ(PQ pq) {
 	PQ temp = pq;
 	PQ prev = pq;
 
-	if (pq->node.key != EMPTY_NODE) {
+	// if pq is empty, return a zeroed ItemPQ.
+	if (pq->node.value != EMPTY_NODE) {
+		// at least one node.
 		if (pq->next == NULL) {
+			// only one node. extract its key-value
+			// and reset it to empty node values.
 			pop.key = pq->node.key;
 			pop.value = pq->node.value;
-			pq->node.key = EMPTY_NODE;
-			pq->node.value = 0;
+			pq->node.key = 0;
+			pq->node.value = EMPTY_NODE;
 		}
 		else {
+			// at least two nodes.
 			pop.key = pq->node.key;
 			pop.value = pq->node.value;
 			curr = pq;
 			while (curr != NULL) {
+				// store key-value of lowest value node which is also
+				// closest to the head (this will be dequeued).
 				if (curr->node.value < pop.value) {
 					pop.key = curr->node.key;
 					pop.value = curr->node.value;
@@ -97,26 +108,33 @@ ItemPQ dequeuePQ(PQ pq) {
 				curr = curr->next;
 			}
 
+			// pop now stores the key and value of what we want to
+			// dequeue.
+
 			if (pq->node.key == pop.key) {
+				// if the head is to be dequeued. 
 				curr = pq;
 				prev = pq;
+				// move all item key-value pairs 'up' the queue by one
+				// the head will be replcaed by the data of its next
+				// and so on
 				while (curr->next != NULL) {
 					curr->node.key = curr->next->node.key;
 					curr->node.value = curr->next->node.value;
 					prev = curr;
 					curr = curr->next;
 				}
+				// remove the last node which is now redundant.
 				prev->next = NULL;
 				free(curr);
 				return pop;
-				// at least two items.
-				// move all item values down queue.
 			}
 
+			// if a non-head node is to be dequeued, do similar
+			// as above
 			curr = pq;
 			while (curr->next != NULL) {
 				if (curr->next->node.key == pop.key) {
-					// FREE curr->next
 					temp = curr->next;
 					curr->next = curr->next->next;
 					free(temp);
