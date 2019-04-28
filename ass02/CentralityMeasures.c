@@ -174,7 +174,6 @@ NodeValues betweennessCentrality(Graph g) {
 									add.value = dijPaths.dist[curr->v];
 									addPQ(subToDo, add);
 									curr = curr->next;
-									// printf(">\n");
 								}
 							}
 							freePQ(subToDo);
